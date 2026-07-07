@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { vehicles } from '../database/vehicles.js';
 import { modifications } from '../database/modifications.js';
-import { 
-  generatePerformanceCurves, 
-  simulateVehicleDynamics, 
+import {
+  generatePerformanceCurves,
+  simulateVehicleDynamics,
   calculateWearAndStress,
-  optimizeBuild 
+  optimizeBuild
 } from '../physics/simulator.js';
 import { RingGauge, HorizontalProgressBar } from './Gauges.jsx';
 import { PerformanceCharts } from './PerformanceCharts.jsx';
-import { 
-  Car, 
-  Sliders, 
-  Wrench, 
-  Flame, 
-  TrendingUp, 
-  Zap, 
-  AlertTriangle, 
-  Cpu, 
+import {
+  Car,
+  Sliders,
+  Wrench,
+  Flame,
+  TrendingUp,
+  Zap,
+  AlertTriangle,
+  Cpu,
   Activity,
   Layers,
   Sparkles
@@ -40,7 +40,7 @@ export default function Dashboard() {
   const [selectedModIds, setSelectedModIds] = useState([]);
   const [budgetLimit, setBudgetLimit] = useState(100000); // ₹1 Lakh default
   const [optimizationResult, setOptimizationResult] = useState(null);
-  
+
   // Feedback loop state (ML Correction factor calibration factor)
   const [mlCalibrationPercent, setMlCalibrationPercent] = useState(100);
   const [userDynoVal, setUserDynoVal] = useState("");
@@ -63,7 +63,7 @@ export default function Dashboard() {
   // Toggle modifications
   const handleModToggle = (modId) => {
     const mod = modifications.find(m => m.id === modId);
-    
+
     if (selectedModIds.includes(modId)) {
       // Remove mod
       setSelectedModIds(prev => prev.filter(id => id !== modId));
@@ -96,10 +96,10 @@ export default function Dashboard() {
       // Polo needs TCU tune to bypass clutch limitations
       const poloExtra = selectedVehicle.id === 'polo_10_tsi' ? ['tcu_remap'] : [];
       setSelectedModIds([
-        'stage3_turbo', 
-        'cold_air_intake', 
-        'exhaust_downpipe', 
-        'upgraded_intercooler', 
+        'stage3_turbo',
+        'cold_air_intake',
+        'exhaust_downpipe',
+        'upgraded_intercooler',
         'performance_tires',
         'lowering_suspension',
         ...poloExtra
@@ -186,28 +186,25 @@ export default function Dashboard() {
           <h1>Car Modification Analyser</h1>
           <p>Indian Automotive Enthusiasts & Tuners Simulation Deck</p>
         </div>
-        <div className="badge-tag">
-          Tuner Edition v1.4
-        </div>
       </header>
 
       {/* Main Core Dashboard Grid */}
       <main className="dashboard-grid">
-        
+
         {/* Left Side Controller Column */}
         <section style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
+
           {/* 1. Vehicle Selection Card */}
           <div className="glass-panel">
             <h2 className="panel-title">
               <Car size={18} className="icon-cyan" />
               Select Base Vehicle
             </h2>
-            
+
             <div className="select-group">
               <label className="select-label">Platform</label>
-              <select 
-                className="custom-select" 
+              <select
+                className="custom-select"
                 value={selectedVehicle.id}
                 onChange={handleVehicleChange}
               >
@@ -260,7 +257,7 @@ export default function Dashboard() {
               Quick Tuning Stages
             </h2>
             <div className="packages-grid">
-              <div 
+              <div
                 className={`package-card ${selectedModIds.length === 0 ? 'active' : ''}`}
                 onClick={() => applyStageProfile('stock')}
               >
@@ -268,7 +265,7 @@ export default function Dashboard() {
                 <p className="package-desc">Factory standards.</p>
                 <span className="package-cost">₹0</span>
               </div>
-              <div 
+              <div
                 className={`package-card ${selectedModIds.includes('stage1_ecu') && !selectedModIds.includes('stage3_turbo') ? 'active' : ''}`}
                 onClick={() => applyStageProfile('stage1')}
               >
@@ -278,7 +275,7 @@ export default function Dashboard() {
                   {formatIndianCurrency(modifications.find(m => m.id === 'stage1_ecu').costRange[selectedVehicle.id])}
                 </span>
               </div>
-              <div 
+              <div
                 className={`package-card ${selectedModIds.includes('stage2_ecu') ? 'active' : ''}`}
                 onClick={() => applyStageProfile('stage2')}
               >
@@ -287,8 +284,8 @@ export default function Dashboard() {
                 <span className="package-cost">Bolt-ons + Map</span>
               </div>
             </div>
-            <button 
-              className="opt-btn" 
+            <button
+              className="opt-btn"
               style={{ width: '100%', marginTop: '12px', background: 'var(--red-glow)', color: '#fff', fontSize: '11px', padding: '10px' }}
               onClick={() => applyStageProfile('stage3')}
             >
@@ -306,7 +303,7 @@ export default function Dashboard() {
               Finds the absolute highest BHP gain combination of compatible modifications that does not exceed your limit.
             </p>
             <div className="budget-input-wrapper">
-              <input 
+              <input
                 type="number"
                 className="budget-input"
                 value={budgetLimit}
@@ -349,10 +346,10 @@ export default function Dashboard() {
 
         {/* Right Side Main Analytical Content */}
         <section className="main-panels">
-          
+
           {/* Top Performance Analytics Badges */}
           <div className="stats-grid-row">
-            
+
             {/* BHP Badge */}
             <div className="glass-panel stat-glow-card stock">
               <span className="stat-label">Peak Power</span>
@@ -406,7 +403,7 @@ export default function Dashboard() {
             {(() => {
               const peakBoost = parseFloat(Math.max(...rawPowerCurves.boostCurve).toFixed(2));
               return (
-                <RingGauge 
+                <RingGauge
                   value={peakBoost}
                   max={2.5}
                   label="Peak Boost"
@@ -415,14 +412,14 @@ export default function Dashboard() {
                 />
               );
             })()}
-            <RingGauge 
+            <RingGauge
               value={stress.mechanicalStress}
               max={100}
               label="Mechanical Stress"
               unit="%"
               color={stress.mechanicalStress > 75 ? "red" : stress.mechanicalStress > 50 ? "orange" : "green"}
             />
-            <RingGauge 
+            <RingGauge
               value={stress.riskScore}
               max={100}
               label="Engine Risk Factor"
@@ -437,7 +434,7 @@ export default function Dashboard() {
               <Activity size={18} className="icon-cyan" />
               Dyno Chart: Power & Torque Curves
             </h2>
-            <PerformanceCharts 
+            <PerformanceCharts
               rpmPoints={rawPowerCurves.rpmPoints}
               stockHp={rawPowerCurves.stockHpCurve}
               stockTorque={rawPowerCurves.stockTorqueCurve}
@@ -449,7 +446,7 @@ export default function Dashboard() {
 
           {/* Bottom Dual Panels: Mod Selection & Stress Analysis */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-            
+
             {/* Modifications Checkbox Panel */}
             <div className="glass-panel">
               <h2 className="panel-title">
@@ -462,24 +459,24 @@ export default function Dashboard() {
                   if (!cost) return null; // skip unsupported mods
 
                   const isActive = selectedModIds.includes(mod.id);
-                  
+
                   // Check requirements
                   const reqsMet = mod.requires.every(reqId => selectedModIds.includes(reqId));
                   const isConflict = mod.conflicts.some(confId => selectedModIds.includes(confId));
 
                   return (
-                    <div 
-                      key={mod.id} 
+                    <div
+                      key={mod.id}
                       className={`mod-card ${isActive ? 'active' : ''} ${!reqsMet ? 'disabled' : ''}`}
                       onClick={() => reqsMet && handleModToggle(mod.id)}
                     >
                       <div className="mod-checkbox-wrapper">
-                        <input 
+                        <input
                           type="checkbox"
                           className="mod-checkbox"
                           checked={isActive}
                           disabled={!reqsMet}
-                          onChange={() => {}} // handled in card onClick
+                          onChange={() => { }} // handled in card onClick
                         />
                       </div>
                       <div className="mod-info">
@@ -490,7 +487,7 @@ export default function Dashboard() {
                           </span>
                         </div>
                         <p className="mod-description">{mod.description}</p>
-                        
+
                         {mod.requires.length > 0 && !reqsMet && (
                           <div style={{ color: 'var(--red-glow)', fontSize: '9px', fontWeight: 'bold', marginTop: '4px' }}>
                             ⚠️ Requires: {mod.requires.map(rId => modifications.find(m => m.id === rId).name).join(", ")}
@@ -510,20 +507,20 @@ export default function Dashboard() {
 
             {/* Durability, Dyno Feedback & Warnings Column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              
+
               {/* Reliability & Durability panel */}
               <div className="glass-panel">
                 <h2 className="panel-title">
                   <Flame size={18} className="icon-cyan" />
                   Reliability & Longevity
                 </h2>
-                
+
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.02)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Safety Index Rating</span>
-                    <span style={{ 
+                    <span style={{
                       color: stress.riskScore > 75 ? 'var(--red-glow)' : stress.riskScore > 40 ? 'var(--orange-glow)' : 'var(--green-glow)',
-                      fontWeight: 'bold', 
+                      fontWeight: 'bold',
                       fontSize: '12px',
                       textTransform: 'uppercase'
                     }}>
@@ -573,7 +570,7 @@ export default function Dashboard() {
                 </p>
 
                 <form className="dyno-inputs" onSubmit={handleCalibrateDyno}>
-                  <input 
+                  <input
                     type="number"
                     className="dyno-input"
                     value={userDynoVal}
